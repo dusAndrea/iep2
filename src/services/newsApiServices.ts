@@ -1,5 +1,5 @@
-const API_KEY = '46094e7ced644eb0a3ac887f94fb61c5';
-const GREEN_URL = 'https://newsapi.org/v2/everything';
+const API_KEY = import.meta.env.VITE_NEWS_API;
+const GREEN_URL = import.meta.env.VITE_GREEN_URL;
 
 export {
   API_KEY,
