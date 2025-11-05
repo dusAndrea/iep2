@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { db } from '@/services/firebaseServices';
-import { collection, query, where, orderBy, getDocs, doc, addDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 import type { QuestionType, UserType } from '@/types';
 
 export const useQuestionsStore = defineStore('questions', {

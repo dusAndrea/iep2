@@ -15,7 +15,7 @@ Da terminale spostarsi nella root della cartella di progetto ed eseguire:
 npm install
 ```
 
-Una volta terminata l'installazione delle dipendeze, sempre da terminale, eseguire
+Una volta terminata l'installazione delle dipendenze, sempre da terminale, eseguire
 
 ```sh
 npm run dev
