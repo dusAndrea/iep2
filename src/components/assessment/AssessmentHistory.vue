@@ -3,7 +3,7 @@
     <template #cardContent>
       <div v-if="getQuizHistory.length">
         <v-expansion-panels multiple>
-          <v-expansion-panel v-for="quiz in getQuizHistory"
+          <v-expansion-panel v-for="quiz in quizHistory"
             :key="quiz.id">
             <v-expansion-panel-title>
               <div class="d-flex justify-space-between w-100">
@@ -39,32 +39,27 @@
     </template>
   </LayoutCardWrapper>
 </template>
-<script lang="ts">
-  import { defineComponent, onMounted } from 'vue';
+<script setup lang="ts">
+  import { onMounted } from 'vue';
   import { LayoutCardWrapper } from '@/components';
   import { useUserStore, useMessagesStore } from '@/stores';
   import { storeToRefs } from 'pinia';
   import { formatDate } from '@/composables';
-  export default defineComponent({
-    components: {
-      LayoutCardWrapper
-    },
-    setup() {
-      const userStore = useUserStore();
-      const { getQuizHistory } = storeToRefs(userStore);
-      const messagesStore = useMessagesStore();
-      onMounted(() => {
-        try {
-          userStore.fetchQuizHistory();
-        } catch (error) {
-          messagesStore.showMessage(error.message, 'error');
-        }
-      });
 
-      return {
-        getQuizHistory,
-        formatDate
-      };
+  // STORE SETUP
+  const userStore = useUserStore();
+  const { getQuizHistory } = storeToRefs(userStore);
+  const messagesStore = useMessagesStore();
+
+  // --- Computed alias per leggibilità ---
+  const quizHistory = getQuizHistory;
+
+  onMounted(async () => {
+    try {
+      await userStore.fetchQuizHistory();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Errore durante il caricamento';
+      messagesStore.showMessage(message, 'error');
     }
   });
 </script>

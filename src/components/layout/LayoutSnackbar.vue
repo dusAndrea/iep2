@@ -15,18 +15,8 @@
   </v-snackbar>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
   import { useMessagesStore } from '@/stores/messages';
-  import { defineComponent } from 'vue';
 
-  export default defineComponent({
-    setup() {
-      const messagesStore = useMessagesStore();
-
-      return {
-        messagesStore,
-      };
-    }
-  })
-
+  const messagesStore = useMessagesStore();
 </script>

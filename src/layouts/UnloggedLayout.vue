@@ -23,18 +23,8 @@
     <FooterBar class="d-flex d-md-none" />
   </v-app>
 </template>
-<script lang="ts">
+<script setup lang="ts">
   import { RouterView } from 'vue-router';
-  import { defineComponent } from 'vue';
   import { LayoutTagline, LayoutSnackbar } from '@/components';
-  import { LayoutFooter } from '@/components';
-  export default defineComponent({
-    name: 'App',
-    components: {
-      RouterView,
-      LayoutTagline,
-      LayoutSnackbar,
-      FooterBar: LayoutFooter
-    },
-  });
+  import { LayoutFooter as FooterBar } from '@/components';
 </script>

@@ -8,7 +8,6 @@ import DashboardDialog from "./dashboard/DashboardDialog.vue";
 
 // feeds
 import FeedArticles from './feeds/FeedArticles.vue';
-import FeedCarousel from './feeds/FeedCarousel.vue';
 
 // layout
 import LayoutCardWrapper from './layout/LayoutCardWrapper.vue';
@@ -27,7 +26,6 @@ export {
   DashboardCalculator,
   DashboardDialog,
   FeedArticles,
-  FeedCarousel,
   LayoutHeader,
   LayoutFooter,
   LayoutCardWrapper,

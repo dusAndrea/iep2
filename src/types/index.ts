@@ -30,7 +30,7 @@ export interface QuestionType {
   question: string;
 }
 
-export type ColorAvailable = 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info' | 'background';
+export type ColorAvailable = 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info' | 'background' | undefined;
 
 export type QuizAnswerType = {
   question: string;

@@ -5,7 +5,7 @@
     rounderd="0">
     <v-avatar rounded="0"
       size="160">
-      <v-img :src="article.urlToImage"
+      <v-img :src="article.urlToImage || 'https://placehold.co/600x400?text=No+Image'"
         alt="Article cover"
         cover>
         <template #placeholder>
@@ -17,12 +17,15 @@
       <h6 class="text-body-1">
         <a class="text-text"
           target="_blank"
-          :href="article.url">{{ article.title }}</a>
+          rel="noopener noreferrer"
+          :href="article.url">
+          {{ article.title }}
+        </a>
       </h6>
 
       <div class="d-flex flex-column align-end text-text text-body-2">
-        <p class="font-weight-medium text-wrap">{{ article.author }}</p>
-        <p>{{ getFormattedDate }}</p>
+        <p class="font-weight-medium text-wrap">{{ article.author || 'Autore sconosciuto' }}</p>
+        <p>{{ formattedDate }}</p>
       </div>
     </div>
   </v-card>
@@ -37,7 +40,8 @@
         <v-img cover
           aspect-ratio="16/9"
           src="https://placehold.co/600x400?text=Oh+No"
-          tile></v-img>
+          alt="Placeholder image"
+          tile />
       </v-avatar>
 
       <div class="d-flex flex-column">
@@ -46,49 +50,27 @@
     </div>
   </v-card>
 </template>
-<script lang="ts">
-  import { defineComponent, type PropType, computed } from 'vue';
+<script setup lang="ts">
+  import { computed } from 'vue';
   import type { FeedType } from '@/types';
 
-  export default defineComponent({
-    name: 'GaiaFeedArticle',
-    props: {
-      article: {
-        type: Object as PropType<FeedType>,
-      }
-    },
-    setup(props) {
-      const getFormattedDate = computed(() => {
-        if (props.article?.publishedAt) {
-          return new Date(props.article?.publishedAt).toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-            timeZone: 'UTC',
-          });
-        }
-        return '';
-      });
-      return {
-        getFormattedDate
-      };
-    }
+  const props = defineProps<{
+    article?: FeedType | null,
+  }>();
+
+  const formattedDate = computed(() => {
+    const date = props.article?.publishedAt;
+
+    return date ? new Date(date).toLocaleDateString('it-IT', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }) : '';
   });
 </script>
 <style lang="scss" scoped>
-.gaia-article-thumb {
-  display: flex;
-  height: 100%;
-
-
-  &__img {
-    width: 100px;
-  }
-
-  &__desc {
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-  }
+.v-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.2s ease;
 }
 </style>

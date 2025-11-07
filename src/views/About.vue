@@ -21,5 +21,4 @@
       <p>Databese: Firebase</p>
     </v-col>
   </v-row>
-
 </template>
