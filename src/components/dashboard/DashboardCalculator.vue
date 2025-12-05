@@ -94,7 +94,6 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import axios from 'axios';
   import debounce from 'lodash.debounce';
   import DashboardDialog from './DashboardDialog.vue';
   import { LayoutCardWrapper } from '@/components';
@@ -157,21 +156,37 @@
     controllerRef.value = new AbortController();
 
     try {
-      const { data } = await axios.get('https://nominatim.openstreetmap.org/search', {
+      const params = new URLSearchParams({
+        q: query,
+        format: 'json',
+        addressdetails: '1',
+        limit: '10'
+      });
+
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
         signal: controllerRef.value.signal,
-        params: {
-          q: query,
-          format: 'json',
-          addressdetails: 1,
-          limit: 10
+        headers: {
+          'Accept': 'application/json'
         }
       });
-      suggestionsRef.value = data;
-    } catch (err) {
-      if (!axios.isCancel(err)) {
-        error.value = 'Errore durante la ricerca degli indirizzi.';
-        console.error(err);
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
       }
+
+      const data = await res.json();
+      suggestionsRef.value = data;
+
+    } catch (err: any) {
+
+      // ❗ Cancellazione nella fetch
+      if (err.name === 'AbortError') {
+        return; // richiesta cancellata, non è un errore
+      }
+
+      error.value = 'Errore durante la ricerca degli indirizzi.';
+      console.error(err);
+
     } finally {
       loadingRef.value = false;
     }
@@ -204,29 +219,37 @@
     }
 
     try {
-      const res = await axios.post(
+      const res = await fetch(
         'https://api.openrouteservice.org/v2/directions/driving-car',
         {
-          coordinates: [
-            [parseFloat(start.lon), parseFloat(start.lat)],
-            [parseFloat(end.lon), parseFloat(end.lat)]
-          ]
-        },
-        {
+          method: 'POST',
           headers: {
             Authorization: OPENROUTESERVICE_API_KEY,
-            'Content-Type': 'application/json'
-          }
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            coordinates: [
+              [parseFloat(start.lon), parseFloat(start.lat)],
+              [parseFloat(end.lon), parseFloat(end.lat)]
+            ]
+          })
         }
       );
 
-      const distanceKm = res.data.routes[0].summary.distance / 1000;
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      const distanceKm = data.routes[0].summary.distance / 1000;
       const emissionsKg = distanceKm * 0.12; // media 120g/km
+
       result.value = {
         distance: distanceKm,
         emissions: emissionsKg
       };
-    } catch (err) {
+    } catch (err: any) {
       error.value = 'Errore durante il calcolo delle emissioni';
       console.error(err);
     }

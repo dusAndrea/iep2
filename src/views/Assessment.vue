@@ -221,6 +221,7 @@
 
   const questionsStore = useQuestionsStore();
 
+  // metodo usato per popolare il db con un set di domande
   const addQuestion = async (question) => {
     try {
       const docRef = await addDoc(collection(db, "questions"), question);

@@ -69,10 +69,3 @@
 
   });
 </script>
-<style lang="scss" scoped>
-.gaia-carousel {
-  // background-color: rgb(var(--v-theme-secondary));
-  //border-top: 1px solid rgb(var(--v-theme-secondary));
-  //border-bottom: 1px solid rgb(var(--v-theme-secondary));
-}
-</style>

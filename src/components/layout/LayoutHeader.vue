@@ -39,8 +39,7 @@
     <v-spacer class="d-none d-lg-block" />
 
     <!-- Desktop Toggle Theme -->
-    <DesktopToggle :isDark="isDark"
-      @toggleEvent="toggleTheme()" />
+    <DesktopToggle />
 
     <v-divider inset
       length="60px"
@@ -119,12 +118,10 @@
     </v-list>
   </v-navigation-drawer>
 
-  <MobileToggle :isDark="isDark"
-    @toggleEvent="toggleTheme()" />
+  <MobileToggle />
 </template>
 
 <script setup lang="ts">
-  import { useTheme } from 'vuetify';
   import { ref, computed } from 'vue';
   import lightLogo from '@/assets/logo_nobg_light.png';
   import darkLogo from '@/assets/logo_nobg_dark.png';
@@ -134,10 +131,9 @@
   import { useRoute } from 'vue-router';
   import DesktopToggle from '@/components/responsive/ResponsiveDesktop.vue';
   import MobileToggle from '@/components/responsive/ResponsiveMobile.vue';
-
-  // Vuetify Theme
-  const theme = useTheme();
-  const isDark = computed(() => theme.change('dark'));
+  import { useIsDark } from '@/composables/useIsDark';
+  // COMPOSABLE THEME
+  const { isDark } = useIsDark();
 
   // STORE
   const userStore = useUserStore();
@@ -187,18 +183,13 @@
     },
   ]);
 
-  const imgPath = computed(() => theme.global.name.value === 'dark' ? darkLogo : lightLogo);
+  const imgPath = computed(() => isDark.value ? darkLogo : lightLogo);
 
   const logout = (() => {
     userStore.logout();
     feedsStore.clearFeeds();
     router.push({ name: 'login' });
   });
-
-  const toggleTheme = () => {
-    let themeColor = isDark.value ? 'light' : 'dark';
-    theme.change(themeColor);
-  };
 </script>
 <style lang="scss" scoped>
   .v-app-bar {

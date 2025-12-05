@@ -71,64 +71,48 @@
   </v-card>
 </template>
 
-<script lang="ts">
-  import { defineComponent, ref, computed } from 'vue';
-  import { useTheme } from 'vuetify';
+<script setup lang="ts">
+  import { ref, computed } from 'vue';
   import lightLogo from '@/assets/logo_nobg_light.png';
   import darkLogo from '@/assets/logo_nobg_dark.png';
   import { useRouter } from 'vue-router';
   import { useUserStore, useMessagesStore } from '@/stores';
   import { useValidationRules, useFirebaseAuthError } from '@/composables';
   import type { UserType } from '@/types';
+  import { useIsDark } from '@/composables';
 
-  export default defineComponent({
-    name: 'UserLogin',
-    setup() {
-      const theme = useTheme();
-      const email = ref('');
-      const password = ref('');
-      const showPassword = ref(false);
-      const { emailRule, requiredRule, minLength } = useValidationRules();
-      const formIsValid = ref(false);
-      const router = useRouter();
-      const userStore = useUserStore();
-      const messagesStore = useMessagesStore();
-      const loading = ref(false);
-      const imgPath = computed(() => theme.global.name.value === 'dark' ? darkLogo : lightLogo);
-      const { getFirebaseAuthErrorMessage } = useFirebaseAuthError();
+  // COMPOSABLE THEME
+  const { isDark } = useIsDark();
 
-      const handleLogin = async () => {
-        try {
-          loading.value = true;
-          const payload = {
-            email: email.value,
-            password: password.value
-          } as UserType;
+  const email = ref('');
+  const password = ref('');
+  const showPassword = ref(false);
+  const { emailRule, requiredRule, minLength } = useValidationRules();
+  const formIsValid = ref(false);
+  const router = useRouter();
+  const userStore = useUserStore();
+  const messagesStore = useMessagesStore();
+  const loading = ref(false);
+  const imgPath = computed(() => isDark.value === 'dark' ? darkLogo : lightLogo);
+  const { getFirebaseAuthErrorMessage } = useFirebaseAuthError();
 
-          await userStore.login(payload);
-          router.push('/dashboard');
-        }
-        catch (error: any) {
-          const code = error.code || '';
-          const message = getFirebaseAuthErrorMessage(code);
-          messagesStore.showMessage(message, 'error');
-        } finally {
-          loading.value = false;
-        }
-      };
+  const handleLogin = async () => {
+    try {
+      loading.value = true;
+      const payload = {
+        email: email.value,
+        password: password.value
+      } as UserType;
 
-      return {
-        email,
-        password,
-        showPassword,
-        formIsValid,
-        loading,
-        imgPath,
-        emailRule,
-        requiredRule,
-        minLength,
-        handleLogin
-      };
+      await userStore.login(payload);
+      router.push('/dashboard');
     }
-  });
+    catch (error: any) {
+      const code = error.code || '';
+      const message = getFirebaseAuthErrorMessage(code);
+      messagesStore.showMessage(message, 'error');
+    } finally {
+      loading.value = false;
+    }
+  };
 </script>

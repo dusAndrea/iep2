@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useMessagesStore } from "@/stores";
 
 const CARBON_API_URL = import.meta.env.VITE_CARBON_API_URL;
@@ -9,7 +8,12 @@ export async function fetchCarbonIntensity() {
   const feedbackStore = useMessagesStore();
 
   try {
-    const res = await axios.get(CARBON_API_URL);
+    const res = await fetch(CARBON_API_URL);
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
     const data = await res.json();
     const values = data.data || [];
 

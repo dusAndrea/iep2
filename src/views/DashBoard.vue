@@ -12,6 +12,6 @@
     </v-col>
   </v-row>
 </template>
-<script setup  lang="ts">
+<script setup lang="ts">
   import { DashboardCalculator } from '@/components';
 </script>
