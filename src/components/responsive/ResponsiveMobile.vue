@@ -13,13 +13,8 @@
         <v-icon class="mx-2">mdi-white-balance-sunny</v-icon>
       </div>
 
-      <v-switch class="mx-3"
-        v-model="model"
-        color="secondary"
-        inset
-        hide-details
-        @click="$emit('toggleEvent')"
-        :aria-label="`Switch to ${model ? 'light' : 'dark'} mode`"></v-switch>
+      <Switch class="mx-3" />
+
       <div>
         <v-icon class="mx-2">mdi-weather-night</v-icon>
         <span>Dark Mode</span>
@@ -27,26 +22,11 @@
     </div>
   </v-snackbar>
 </template>
-<script lang="ts">
-  import { defineComponent, ref } from 'vue';
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import Switch from './Switch.vue';
 
-  export default defineComponent({
-    props: {
-      isDark: {
-        type: Boolean,
-        required: true
-      }
-    },
-    setup(props) {
-      const model = ref(props.isDark);
-      const snackBarModel = ref(true);
-
-      return {
-        model,
-        snackBarModel
-      };
-    }
-  });
+  const snackBarModel = ref(true);
 </script>
 <style scoped>
   .mobile-snackbar {

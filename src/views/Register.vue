@@ -122,82 +122,63 @@
   </v-card>
 </template>
 
-<script lang="ts">
-  import { defineComponent, ref, computed } from 'vue';
-  import { useTheme } from 'vuetify';
+<script setup lang="ts">
+  import { ref, computed } from 'vue';
   import lightLogo from '@/assets/logo_nobg_light.png';
   import darkLogo from '@/assets/logo_nobg_dark.png';
   import { useUserStore, useMessagesStore } from '@/stores';
   import { useRouter } from 'vue-router';
-  import taglineImage from '@/assets/tagline_opacity.png';
   import { useValidationRules } from '@/composables';
   import type { UserType } from '@/types';
+  import { useIsDark } from '@/composables/useIsDark';
 
-  export default defineComponent({
-    name: 'UserRegister',
-    setup: () => {
-      const theme = useTheme();
-      const showPassword = ref(false);
-      const showConfirmPassword = ref(false);
-      const firstName = ref('');
-      const lastName = ref('');
-      const email = ref('');
-      const confirmEmail = ref('');
-      const password = ref('');
-      const confirmPassword = ref('');
-      const error = ref<string | null>(null);
-      const userStore = useUserStore();
-      const messagesStore = useMessagesStore();
-      const router = useRouter();
-      const { emailRule, requiredRule, minLength, matchRule } = useValidationRules();
-      const formIsValid = ref(false);
-      const loading = ref(false);
-      const imgPath = computed(() => theme.global.name.value === 'dark' ? darkLogo : lightLogo);
+  // COMPOSABLE THEME
+  const { isDark } = useIsDark();
 
-      const handleRegister = async () => {
-        try {
-          loading.value = true;
-          const payload = {
-            firstName: firstName.value,
-            lastName: lastName.value,
-            email: email.value,
-            password: password.value
-          } as UserType;
+  // STORE
+  const userStore = useUserStore();
+  const messagesStore = useMessagesStore();
 
-          await userStore.register(payload);
+  // STATE
+  const showPassword = ref(false);
+  const showConfirmPassword = ref(false);
+  const firstName = ref('');
+  const lastName = ref('');
+  const email = ref('');
+  const confirmEmail = ref('');
+  const password = ref('');
+  const confirmPassword = ref('');
 
-          messagesStore.showMessage('Utente creato con successo', 'success');
+  const router = useRouter();
+  const { emailRule, requiredRule, minLength, matchRule } = useValidationRules();
+  const formIsValid = ref(false);
+  const loading = ref(false);
 
-          router.push({ name: 'login' });
-        } catch (e: any) {
-          messagesStore.showMessage(e.message, 'error');
-        } finally {
-          loading.value = false;
-        }
-      };
+  // COMPUTED
+  const imgPath = computed(() => isDark.value === 'dark' ? darkLogo : lightLogo);
 
-      return {
-        showPassword,
-        showConfirmPassword,
-        firstName,
-        lastName,
-        email,
-        confirmEmail,
-        loading,
-        imgPath,
-        emailRule,
-        requiredRule,
-        minLength,
-        matchRule,
-        password,
-        confirmPassword,
-        error,
-        formIsValid,
-        handleRegister,
-        taglineImage
-      };
+  // METHOD
+  const handleRegister = async () => {
+    try {
+      loading.value = true;
+      const payload = {
+        firstName: firstName.value,
+        lastName: lastName.value,
+        email: email.value,
+        password: password.value
+      } as UserType;
+
+      await userStore.register(payload);
+
+      messagesStore.showMessage('Utente creato con successo', 'success');
+
+      router.push({ name: 'login' });
+    } catch (e: any) {
+      messagesStore.showMessage(e.message, 'error');
+    } finally {
+      loading.value = false;
     }
-  });
+  };
 </script>
 <style lang="scss">
 .login {

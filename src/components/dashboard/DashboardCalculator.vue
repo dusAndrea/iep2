@@ -43,7 +43,7 @@
           <v-col cols="12"
             lg="6">
             <v-select :disabled="travelChoice !== 'car'"
-              v-model="carChoiceChoice"
+              v-model="carTypeChoice"
               :items="carType"
               label="Che tipo di auto hai??"
               outlined />
@@ -92,173 +92,166 @@
   </LayoutCardWrapper>
 </template>
 
-<script lang="ts">
-  import { defineComponent, ref } from 'vue';
-  import axios from 'axios';
+<script setup lang="ts">
+  import { ref } from 'vue';
   import debounce from 'lodash.debounce';
   import DashboardDialog from './DashboardDialog.vue';
   import { LayoutCardWrapper } from '@/components';
   import { OPENROUTESERVICE_API_KEY } from '@/services/api';
-  export default defineComponent({
-    name: 'CO2Calculator',
-    components: {
-      LayoutCardWrapper,
-      DashboardDialog
-    },
-    props: {
-      title: {
-        type: String,
-        required: true
-      },
-      subtitle: {
-        type: String,
-        required: true
+
+  defineProps<{
+    title: string,
+    subtitle: string;
+  }>();
+
+  // STATE
+  const startQuery = ref<string | null>(null);
+  const endQuery = ref<string | null>(null);
+  const startSearch = ref('');
+  const endSearch = ref('');
+  const startSuggestions = ref<any[]>([]);
+  const endSuggestions = ref<any[]>([]);
+  const loadingStart = ref(false);
+  const loadingEnd = ref(false);
+  const result = ref<{ distance: number; emissions: number; } | null>(null);
+  const error = ref('');
+
+  const travelChoice = ref<string | null>(null);
+  const carTypeChoice = ref<string | null>(null);
+  const carSizeChoice = ref<string | null>(null);
+
+  const startController = ref<AbortController | null>(null);
+  const endController = ref<AbortController | null>(null);
+
+  // STATIC CONST
+  const travelMode = [
+    { title: 'Auto', value: 'car' },
+    { title: 'Treno', value: 'rail' },
+    { title: 'Aereo', value: 'air' }
+  ];
+
+  const carSize = [
+    { title: 'Piccola', value: 'small' },
+    { title: 'Media', value: 'medium' },
+    { title: 'Grande', value: 'large' }
+  ];
+
+  const carType = [
+    { title: 'Benzina', value: 'petrol' },
+    { title: 'Diesel', value: 'diesel' },
+    { title: 'Ibrida', value: 'hybrid' },
+    { title: 'Ibrida Plug-in', value: 'plugin_hybrid' },
+    { title: 'Non so (Verrà calcolata una media)', value: 'average' },
+    { title: 'Elettrica', value: 'battery' }
+  ];
+
+  async function searchPlaces(query: string, controllerRef: typeof startController, suggestionsRef: typeof startSuggestions, loadingRef: typeof loadingStart): Promise<void> {
+    if (query.length < 3) { return; };
+
+    error.value = '';
+    loadingRef.value = true;
+
+    controllerRef.value?.abort();
+
+    controllerRef.value = new AbortController();
+
+    try {
+      const params = new URLSearchParams({
+        q: query,
+        format: 'json',
+        addressdetails: '1',
+        limit: '10'
+      });
+
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
+        signal: controllerRef.value.signal,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
       }
-    },
-    setup() {
-      const startQuery = ref();
-      const endQuery = ref();
-      const startSuggestions = ref([]);
-      const endSuggestions = ref([]);
-      const loadingStart = ref(false);
-      const loadingEnd = ref(false);
-      const result = ref(null);
-      const error = ref('');
-      const startSearch = ref('');
-      const endSearch = ref('');
-      const startController = ref<AbortController | null>(null);
-      const endController = ref<AbortController | null>(null);
-      // const OPENROUTESERVICE_API_KEY = '5b3ce3597851110001cf6248350a055ef9cd402b906676eb2e1c2c56';
 
-      const travelChoice = ref<string | null>(null);
+      const data = await res.json();
+      suggestionsRef.value = data;
 
-      const travelMode = [
-        { title: 'Auto', value: 'car' },
-        { title: 'Treno', value: 'rail' },
-        { title: 'Aereo', value: 'air' }
-      ];
+    } catch (err: any) {
 
-      const carChoiceChoice = ref<string | null>(null);
-      const carSizeChoice = ref<string | null>(null);
+      // ❗ Cancellazione nella fetch
+      if (err.name === 'AbortError') {
+        return; // richiesta cancellata, non è un errore
+      }
 
-      const carSize = [
-        { title: 'Piccola', value: 'small' },
-        { title: 'Media', value: 'medium' },
-        { title: 'Grande', value: 'large' }
-      ];
+      error.value = 'Errore durante la ricerca degli indirizzi.';
+      console.error(err);
 
-      const carType = [
-        { title: 'Benzina', value: 'petrol' },
-        { title: 'Diesel', value: 'diesel' },
-        { title: 'Ibrida', value: 'hybrid' },
-        { title: 'Ibrida Plug-in', value: 'plugin_hybrid' },
-        { title: 'Non so (Verrà calcolata una media)', value: 'average' },
-        { title: 'Elettrica', value: 'battery' }
-      ];
-
-      const searchPlaces = async (query: string, controllerRef, suggestionsRef, loadingRef) => {
-        if (query.length < 3) return;
-
-        error.value = '';
-        loadingRef.value = true;
-        if (controllerRef.value) controllerRef.value.abort();
-
-        controllerRef.value = new AbortController();
-        try {
-          const { data } = await axios.get('https://nominatim.openstreetmap.org/search', {
-            signal: controllerRef.value.signal,
-            params: {
-              q: query,
-              format: 'json',
-              addressdetails: 1,
-              limit: 10
-            }
-          });
-          suggestionsRef.value = data;
-        } catch (err) {
-          if (!axios.isCancel(err)) {
-            error.value = 'Errore durante la ricerca degli indirizzi.';
-            console.error(err);
-          }
-        } finally {
-          loadingRef.value = false;
-        }
-      };
-
-      const debouncedStartSearch = debounce((q) =>
-        searchPlaces(q, startController, startSuggestions, loadingStart), 400);
-      const debouncedEndSearch = debounce((q) =>
-        searchPlaces(q, endController, endSuggestions, loadingEnd), 400);
-
-      const handleStartSearch = (query: string) => {
-        if (query.length < 3) return;
-        debouncedStartSearch(query);
-      };
-
-      const handleEndSearch = (query: string) => {
-        if (query.length < 3) return;
-        debouncedEndSearch(query);
-      };
-
-      const calculateEmissions = async () => {
-        error.value = '';
-        const start = startSuggestions.value.find(s => s.display_name === startQuery.value);
-        const end = endSuggestions.value.find(e => e.display_name === endQuery.value);
-        if (!start || !end) {
-          error.value = 'Seleziona indirizzi validi dai suggerimenti.';
-          return;
-        }
-
-        try {
-          const res = await axios.post(
-            'https://api.openrouteservice.org/v2/directions/driving-car',
-            {
-              coordinates: [
-                [parseFloat(start.lon), parseFloat(start.lat)],
-                [parseFloat(end.lon), parseFloat(end.lat)]
-              ]
-            },
-            {
-              headers: {
-                Authorization: OPENROUTESERVICE_API_KEY,
-                'Content-Type': 'application/json'
-              }
-            }
-          );
-
-          const distanceKm = res.data.routes[0].summary.distance / 1000;
-          const emissionsKg = distanceKm * 0.12; // media 120g/km
-          result.value = {
-            distance: distanceKm,
-            emissions: emissionsKg
-          };
-        } catch (err) {
-          error.value = 'Errore durante il calcolo delle emissioni.';
-          console.error(err);
-        }
-      };
-
-      return {
-        startQuery,
-        endQuery,
-        startSuggestions,
-        endSuggestions,
-        loadingStart,
-        loadingEnd,
-        travelChoice,
-        travelMode,
-        carChoiceChoice,
-        carSize,
-        carSizeChoice,
-        carType,
-        startSearch,
-        endSearch,
-        handleStartSearch,
-        handleEndSearch,
-        calculateEmissions,
-        result,
-        error,
-      };
+    } finally {
+      loadingRef.value = false;
     }
-  });
+  };
+
+  const debouncedStartSearch = debounce((q: string) =>
+    searchPlaces(q, startController, startSuggestions, loadingStart), 400);
+
+  const debouncedEndSearch = debounce((q: string) =>
+    searchPlaces(q, endController, endSuggestions, loadingEnd), 400);
+
+  function handleStartSearch(query: string) {
+    if (query.length < 3) return;
+    debouncedStartSearch(query);
+  };
+
+  function handleEndSearch(query: string) {
+    if (query.length < 3) return;
+    debouncedEndSearch(query);
+  };
+
+  async function calculateEmissions() {
+    error.value = '';
+    const start = startSuggestions.value.find(s => s.display_name === startQuery.value);
+    const end = endSuggestions.value.find(e => e.display_name === endQuery.value);
+
+    if (!start || !end) {
+      error.value = 'Seleziona indirizzi validi dai suggerimenti.';
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        'https://api.openrouteservice.org/v2/directions/driving-car',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: OPENROUTESERVICE_API_KEY,
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            coordinates: [
+              [parseFloat(start.lon), parseFloat(start.lat)],
+              [parseFloat(end.lon), parseFloat(end.lat)]
+            ]
+          })
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      const distanceKm = data.routes[0].summary.distance / 1000;
+      const emissionsKg = distanceKm * 0.12; // media 120g/km
+
+      result.value = {
+        distance: distanceKm,
+        emissions: emissionsKg
+      };
+    } catch (err: any) {
+      error.value = 'Errore durante il calcolo delle emissioni';
+      console.error(err);
+    }
+  };
 </script>

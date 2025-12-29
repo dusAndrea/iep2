@@ -24,38 +24,28 @@
     </template>
   </v-dialog>
 </template>
-<script lang="ts">
-  import { defineComponent } from 'vue';
-
-  export default defineComponent({
-    setup() {
-      const tableItems = [
-        {
-          dimensione: 'Piccola',
-          benzina: "Motore inferiore a 1,4 litri",
-          diesel: "Motore inferiore a 1,7 litri",
-          altri: "Auto di segmento A e B",
-          esempio: "Fiat 500, Opel Adam, Renault Clio, Ford Fiesta etc."
-        },
-        {
-          dimensione: 'Media',
-          benzina: "Motore da 1,4 a 2,0 litri",
-          diesel: "Motore da 1,7 a 2,0 litri",
-          altri: "Auto di segmento C",
-          esempio: "Volkswagen Golf, Honda Civic etc."
-        },
-        {
-          dimensione: 'Grande',
-          benzina: "Motore da 2,0 litri",
-          diesel: "Motore da 2,0 litri",
-          altri: "Auto di segmento D",
-          esempio: "BMW 3-Series, Volkswagen Passat etc."
-        }
-      ];
-
-      return {
-        tableItems
-      };
+<script setup lang="ts">
+  const tableItems = [
+    {
+      dimensione: 'Piccola',
+      benzina: "Motore inferiore a 1,4 litri",
+      diesel: "Motore inferiore a 1,7 litri",
+      altri: "Auto di segmento A e B",
+      esempio: "Fiat 500, Opel Adam, Renault Clio, Ford Fiesta etc."
+    },
+    {
+      dimensione: 'Media',
+      benzina: "Motore da 1,4 a 2,0 litri",
+      diesel: "Motore da 1,7 a 2,0 litri",
+      altri: "Auto di segmento C",
+      esempio: "Volkswagen Golf, Honda Civic etc."
+    },
+    {
+      dimensione: 'Grande',
+      benzina: "Motore da 2,0 litri",
+      diesel: "Motore da 2,0 litri",
+      altri: "Auto di segmento D",
+      esempio: "BMW 3-Series, Volkswagen Passat etc."
     }
-  });
+  ];
 </script>

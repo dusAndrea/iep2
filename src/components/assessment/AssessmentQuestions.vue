@@ -45,100 +45,99 @@
     </Transition>
   </v-form>
 </template>
-<script lang="ts">
-  import { ref, computed, defineComponent, onMounted } from 'vue';
+<script setup lang="ts">
+  import { ref, computed, onMounted } from 'vue';
   import { useQuestionsStore, useUserStore, useMessagesStore } from '@/stores';
   import type { QuestionType } from '@/types';
   import { storeToRefs } from 'pinia';
   import LayoutCardWrapper from '@/components/layout/LayoutCardWrapper.vue';
-  export default defineComponent({
-    components: {
-      LayoutCardWrapper
-    },
-    setup() {
-      const questionsStore = useQuestionsStore();
-      const userStore = useUserStore();
-      const messagesStore = useMessagesStore();
-      const { getQuestions } = storeToRefs(questionsStore);
-      const { getUID } = storeToRefs(userStore);
-      const currentIndex = ref(0);
-      const userAnswer = ref<null | string | number>(null);
-      const userAnswers = ref<string[]>([]);
-      const score = ref(0);
-      const quizCompleted = ref(false);
-      const questions = ref<QuestionType[]>([]);
-      const loading = ref(true);
 
-      const handleSave = () => {
-        if (Number(userAnswer.value) === Number(currentQuestion.value.answer)) {
-          score.value++;
-        }
+  // STORES
+  const questionsStore = useQuestionsStore();
+  const userStore = useUserStore();
+  const messagesStore = useMessagesStore();
 
-        userAnswers.value.push(userAnswer.value);
+  const { getQuestions } = storeToRefs(questionsStore);
+  const { getUID } = storeToRefs(userStore);
 
-        if (currentIndex.value < questions.value.length - 1) {
-          currentIndex.value++;
-          userAnswer.value = null;
-        } else {
-          quizCompleted.value = true;
-          handleSubmit();
-        }
-      };
+  // STATE
+  const currentIndex = ref(0);
+  const userAnswer = ref<string | number | null>(null);
+  const userAnswers = ref<(string | number)[]>([]);
+  const score = ref(0);
+  const quizCompleted = ref(false);
+  const questions = ref<QuestionType[]>([]);
+  const loading = ref(true);
 
-      const handleSubmit = async () => {
-        if (!getUID.value) {
-          return;
-        }
+  // COMPUTED
+  const currentQuestion = computed(() => {
+    return questions.value[currentIndex.value] ?? { question: '', options: [], answer: '' };
+  });
 
-        const payload = {
-          userId: getUID.value,
-          date: new Date().toISOString(),
-          score: score.value,
-          total: questions.value.length,
-          answers: questions.value.map((q, i) => ({
-            question: q.question,
-            selected: userAnswers.value[i],
-            correct: q.answer,
-            isCorrect: String(userAnswers.value[i]) === String(q.answer)
-          }))
-        };
+  const title = computed(() => {
+    return `Domanda ${currentIndex.value + 1} / ${questions.value.length}: ${currentQuestion.value.question}`;
+  });
 
-        try {
-          await questionsStore.submitAssesment(payload);
-          messagesStore.showMessage('Salvataggio avvenuto correttamente', 'success');
-          await userStore.fetchQuizHistory();
-        } catch (error: any) {
-          messagesStore.showMessage(error, 'error');
-        }
-      };
+  const isLastQuestion = computed(() => currentIndex.value === questions.value.length - 1);
 
-      const currentQuestion = computed(() => {
-        return questions.value[currentIndex.value] || { question: '', options: [], answer: '' };
-      });
+  // METHODS
+  function handleSave(): void {
+    const correctAnswer = String(currentQuestion.value.answer);
+    const userSelection = String(userAnswer.value);
 
-      const title = computed(() => {
-        return `Domanda ${currentIndex.value + 1} / ${questions.value.length}: ${currentQuestion.value.question}`;
-      });
-
-      onMounted(async () => {
-        questions.value = getQuestions.value;
-        loading.value = false;
-      });
-
-      return {
-        questions,
-        quizCompleted,
-        currentIndex,
-        currentQuestion,
-        userAnswer,
-        userAnswers,
-        score,
-        loading,
-        title,
-        handleSave,
-        handleSubmit,
-      };
+    if (userSelection === correctAnswer) {
+      score.value++;
     }
-  })
 
+    userAnswers.value.push(userAnswer.value!);
+
+    if (!isLastQuestion.value) {
+      currentIndex.value++;
+      userAnswer.value = null;
+    } else {
+      quizCompleted.value = true;
+      handleSubmit();
+    }
+  };
+
+  async function handleSubmit(): Promise<void> {
+    if (!getUID.value) {
+      return;
+    }
+
+    const payload = {
+      userId: getUID.value,
+      date: new Date().toISOString(),
+      score: score.value,
+      total: questions.value.length,
+      answers: questions.value.map((q, i) => ({
+        question: q.question,
+        selected: userAnswers.value[i],
+        correct: q.answer,
+        isCorrect: String(userAnswers.value[i]) === String(q.answer)
+      }))
+    };
+
+    try {
+      await questionsStore.submitAssesment(payload);
+      messagesStore.showMessage('Salvataggio avvenuto correttamente', 'success');
+      await userStore.fetchQuizHistory();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Errore durante il salvataggio del quiz';
+      messagesStore.showMessage(message, 'error');
+    }
+  };
+
+  // LIFECYCLE
+  onMounted(async () => {
+    loading.value = false;
+    try {
+      questions.value = getQuestions.value;
+    } catch {
+      const message = error instanceof Error ? error.message : 'Errore durante il caricamento';
+      messagesStore.showMessage(message, 'error');
+    } finally {
+      loading.value = false;
+    }
+  });
 </script>

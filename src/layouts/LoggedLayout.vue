@@ -21,18 +21,7 @@
     <FooterBar />
   </v-app>
 </template>
-<script lang="ts">
+<script setup lang="ts">
   import { RouterView } from 'vue-router';
-  import { LayoutHeader, LayoutFooter, LayoutSnackbar } from '@/components';
-  import { defineComponent } from 'vue';
-
-  export default defineComponent({
-    name: 'App',
-    components: {
-      HeaderBar: LayoutHeader,
-      RouterView,
-      LayoutSnackbar,
-      FooterBar: LayoutFooter,
-    },
-  });
+  import { LayoutHeader as HeaderBar, LayoutFooter as FooterBar, LayoutSnackbar } from '@/components';
 </script>

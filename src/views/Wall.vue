@@ -39,7 +39,7 @@
           <div class="d-flex flex-column text-truncate">
             <strong class="text-truncate">{{ feed.author }}</strong>
 
-            <span class="text-medium-emphasis">{{ formatDate(feed.publishedAt) }}</span>
+            <span class="text-medium-emphasis">{{ formatDate(feed.publishedAt.toString()) }}</span>
           </div>
           <v-btn :border="true"
             primary
@@ -51,60 +51,31 @@
   </v-row>
 
 </template>
-<script lang="ts">
-  import { defineComponent, onMounted, ref } from 'vue';
+<script setup lang="ts">
+  import { onMounted, ref } from 'vue';
   import { useFeedsStore } from '@/stores';
   import { storeToRefs } from 'pinia';
   import type { FeedType } from '@/types';
   import { useMessagesStore } from '@/stores';
   import { formatDate } from '@/composables';
 
-  export default defineComponent({
-    name: 'GreenFeed',
-    components: {
-    },
-    setup() {
-      const feedStore = useFeedsStore();
-      const feeds = ref([] as FeedType[]);
-      const { getFeeds } = storeToRefs(feedStore);
-      const messagesStore = useMessagesStore();
-      const carouselConfig = {
-        itemsToShow: 4,
-        wrapAround: false,
-        snapAlign: 'start',
-        gap: 20,
-        height: 160
-      };
+  const feedStore = useFeedsStore();
+  const feeds = ref([] as FeedType[]);
+  const { getFeeds } = storeToRefs(feedStore);
+  const messagesStore = useMessagesStore();
 
-      const fetchFeeds = async () => {
-        if (!getFeeds.value.length) {
-          try {
-            await feedStore.fetchFeeds();
-          } catch (error: any) {
-            messagesStore.showMessage(error.message, 'error');
-          }
-        }
-        feeds.value = getFeeds.value;
-      };
-
-      onMounted(() => {
-        fetchFeeds();
-      });
-
-      return {
-        feeds,
-        carouselConfig,
-        formatDate,
-        fetchFeeds,
-      };
+  const fetchFeeds = async () => {
+    if (!getFeeds.value.length) {
+      try {
+        await feedStore.fetchFeeds();
+      } catch (error: any) {
+        messagesStore.showMessage(error.message, 'error');
+      }
     }
+    feeds.value = getFeeds.value;
+  };
 
+  onMounted(() => {
+    fetchFeeds();
   });
 </script>
-<style lang="scss" scoped>
-.gaia-carousel {
-  // background-color: rgb(var(--v-theme-secondary));
-  //border-top: 1px solid rgb(var(--v-theme-secondary));
-  //border-bottom: 1px solid rgb(var(--v-theme-secondary));
-}
-</style>

@@ -43,3 +43,8 @@
 .gaia-opacity {
   text-shadow: rgb(var(--v-theme-text)) 1px 0 10px;
 }
+
+/* theme color transition */
+.v-application {
+  transition: all .3s ease-in-out
+}

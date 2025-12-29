@@ -10,21 +10,11 @@
   </v-footer>
 </template>
 
-<script lang="ts">
-  import { defineComponent, computed } from 'vue';
+<script setup lang="ts">
   import logo from '@/assets/logo_footer.png';
   import { useUserStore } from '@/stores';
   import { storeToRefs } from 'pinia';
 
-  export default defineComponent({
-    setup() {
-      const userStore = useUserStore();
-      const { isLoggedIn } = storeToRefs(userStore);
-
-      return {
-        logo,
-        isLoggedIn
-      };
-    }
-  });
+  const userStore = useUserStore();
+  const { isLoggedIn } = storeToRefs(userStore);
 </script>

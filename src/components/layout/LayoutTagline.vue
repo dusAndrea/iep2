@@ -11,17 +11,6 @@
     </div>
   </v-card>
 </template>
-<script lang="ts">
-  import { defineComponent } from 'vue';
+<script setup lang="ts">
   import taglineImage from '@/assets/tagline_opacity.png';
-
-  export default defineComponent({
-    components: {},
-    setup() {
-
-      return {
-        taglineImage
-      };
-    }
-  });
 </script>

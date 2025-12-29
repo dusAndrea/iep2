@@ -18,8 +18,8 @@
 <script lang="ts">
   import { defineComponent, onMounted, ref } from 'vue';
   import 'vue3-carousel/carousel.css';
-  import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
-  import FeedArticles from './FeedArticles.vue';
+  import { Carousel, Slide, Navigation } from 'vue3-carousel';
+  import { FeedArticles } from '@/components';
   import { useFeedsStore } from '@/stores';
   import { storeToRefs } from 'pinia';
   import type { FeedType } from '@/types';
@@ -69,10 +69,3 @@
 
   });
 </script>
-<style lang="scss" scoped>
-.gaia-carousel {
-  // background-color: rgb(var(--v-theme-secondary));
-  //border-top: 1px solid rgb(var(--v-theme-secondary));
-  //border-bottom: 1px solid rgb(var(--v-theme-secondary));
-}
-</style>

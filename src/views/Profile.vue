@@ -93,8 +93,8 @@
   </v-row>
 </template>
 
-<script lang="ts">
-  import { defineComponent, ref, onMounted } from 'vue';
+<script setup lang="ts">
+  import { ref, onMounted } from 'vue';
   import { useUserStore } from '@/stores/user';
   import { useMessagesStore } from '@/stores/messages';
   import { useValidationRules } from '@/composables';
@@ -102,88 +102,56 @@
   import { storeToRefs } from 'pinia';
   import router from '@/router';
 
-  export default defineComponent({
-    setup() {
-      const userStore = useUserStore();
-      const { getEmail, getDisplayName } = storeToRefs(userStore);
-      const messagesStore = useMessagesStore();
-      const { getTimeout } = storeToRefs(messagesStore);
-      const showPassword = ref(false);
-      const showConfirmPassword = ref(false);
-      const password = ref('');
-      const confirmPassword = ref('');
-      const error = ref<string | null>(null);
-      const { emailRule, requiredRule, matchRule } = useValidationRules();
-      const email = ref('');
-      const confirmEmail = ref('');
-      const firstName = ref('');
-      const lastName = ref('');
-      const formIsValid = ref(false);
-      const loading = ref(false);
-      const showDeleteDialog = ref(false);
+  const userStore = useUserStore();
+  const { getEmail, getDisplayName } = storeToRefs(userStore);
+  const messagesStore = useMessagesStore();
+  const { getTimeout } = storeToRefs(messagesStore);
+  const { emailRule, requiredRule, matchRule } = useValidationRules();
+  const email = ref('');
+  const confirmEmail = ref('');
+  const firstName = ref('');
+  const lastName = ref('');
+  const formIsValid = ref(false);
+  const loading = ref(false);
+  const showDeleteDialog = ref(false);
 
-      const handleUpdate = async () => {
+  const handleUpdate = async () => {
+    try {
+      loading.value = true;
+      const payload = {
+        displayName: `${firstName.value} ${lastName.value}`,
+        email: email.value
+      } as UserType;
 
-        try {
-          loading.value = true;
-          const payload = {
-            displayName: `${firstName.value} ${lastName.value}`,
-            email: email.value
-          } as UserType;
-
-          await userStore.update(payload);
-          messagesStore.showMessage('Dati aggiornati con successo', 'success');
-        }
-        catch (error: any) {
-          messagesStore.showMessage(error.message, 'error');
-        } finally {
-          loading.value = false;
-        }
-      };
-
-
-      const deleteAccount = async () => {
-        try {
-          userStore.deleteAccount();
-          messagesStore.showMessage('Utente eliminato con successo', 'success');
-          setTimeout(() => {
-            // redirect to home page after successful registration
-            router.push('/login');
-          }, getTimeout.value);
-        } catch (error: any) {
-          messagesStore.showMessage(error.message, 'error');
-        }
-      };
-
-      onMounted(() => {
-        const displayName = getDisplayName.value ?? '';
-        const nameParts = displayName.split(' ');
-        firstName.value = nameParts[0] || '';
-        lastName.value = nameParts.slice(1).join(' ') || '';
-        email.value = getEmail.value ?? '';
-        confirmEmail.value = getEmail.value ?? '';
-      });
-
-      return {
-        showPassword,
-        showConfirmPassword,
-        firstName,
-        lastName,
-        email,
-        confirmEmail,
-        password,
-        confirmPassword,
-        error,
-        loading,
-        emailRule,
-        requiredRule,
-        matchRule,
-        showDeleteDialog,
-        deleteAccount,
-        userStore,
-        handleUpdate,
-        formIsValid,
-      };
+      await userStore.update(payload);
+      messagesStore.showMessage('Dati aggiornati con successo', 'success');
     }
+    catch (error: any) {
+      messagesStore.showMessage(error.message, 'error');
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const deleteAccount = async () => {
+    try {
+      userStore.deleteAccount();
+      messagesStore.showMessage('Utente eliminato con successo', 'success');
+      setTimeout(() => {
+        // redirect to home page after successful registration
+        router.push('/login');
+      }, getTimeout.value);
+    } catch (error: any) {
+      messagesStore.showMessage(error.message, 'error');
+    }
+  };
+
+  onMounted(() => {
+    const displayName = getDisplayName.value ?? '';
+    const nameParts = displayName.split(' ');
+    firstName.value = nameParts[0] || '';
+    lastName.value = nameParts.slice(1).join(' ') || '';
+    email.value = getEmail.value ?? '';
+    confirmEmail.value = getEmail.value ?? '';
   });
 </script>
