@@ -37,7 +37,7 @@
               label="Nome"
               type="text"
               required
-              outlined
+              variant="outlined"
               clearable
               :rules="[requiredRule]" />
           </v-col>
@@ -47,7 +47,7 @@
               label="Cognome"
               type="text"
               required
-              outlined
+              variant="outlined"
               clearable
               :rules="[requiredRule]" />
           </v-col>
@@ -58,7 +58,7 @@
               label="Email"
               type="email"
               required
-              outlined
+              variant="outlined"
               clearable
               :rules="[requiredRule, emailRule]" />
           </v-col>
@@ -68,7 +68,7 @@
               label="Ripeti Email"
               type="email"
               required
-              outlined
+              variant="outlined"
               clearable
               :rules="[requiredRule, emailRule, matchRule(email)]" />
           </v-col>
@@ -83,7 +83,7 @@
               :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
               @click:append-inner="showPassword = !showPassword"
               required
-              outlined
+              variant="outlined"
               clearable
               autocomplete
               :rules="[requiredRule, minLength]" />
@@ -98,7 +98,7 @@
               :append-inner-icon="showConfirmPassword ? 'mdi-eye-off' : 'mdi-eye'"
               @click:append-inner="showConfirmPassword = !showConfirmPassword"
               required
-              outlined
+              variant="outlined"
               clearable
               autocomplete
               :rules="[requiredRule, minLength, matchRule(password)]" />
