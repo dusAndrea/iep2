@@ -18,7 +18,7 @@
                   label="Nome"
                   type="text"
                   required
-                  outlined
+                  variant="outlined"
                   clearable
                   :rules="[requiredRule]" />
               </v-col>
@@ -28,7 +28,7 @@
                   label="Cognome"
                   type="text"
                   required
-                  outlined
+                  variant="outlined"
                   clearable
                   :rules="[requiredRule]" />
               </v-col>
@@ -37,22 +37,9 @@
               <v-col cols="12"
                 md="6">
                 <v-text-field v-model="email"
-                  label="Inserisci una nuova Email"
-                  type="email"
-                  required
-                  outlined
-                  clearable
-                  :rules="[requiredRule, emailRule]" />
-              </v-col>
-              <v-col cols="12"
-                md="6">
-                <v-text-field v-model="confirmEmail"
-                  label="Conferma la nuova Email"
-                  type="email"
-                  required
-                  outlined
-                  clearable
-                  :rules="[requiredRule, emailRule, matchRule(email)]" />
+                  label="Email"
+                  variant="outlined"
+                  readonly />
               </v-col>
             </v-row>
 
@@ -62,9 +49,9 @@
                   variant="text"
                   @click="showDeleteDialog = true">Elimina Account</v-btn>
 
-                <v-btn color="primary"
+                <v-btn type="submit"
+                  color="primary"
                   class="ml-a"
-                  @click="handleUpdate"
                   :loading="loading"
                   :disabled="!formIsValid">Aggiorna</v-btn>
               </v-col>
@@ -106,9 +93,8 @@
   const { getEmail, getDisplayName } = storeToRefs(userStore);
   const messagesStore = useMessagesStore();
   const { getTimeout } = storeToRefs(messagesStore);
-  const { emailRule, requiredRule, matchRule } = useValidationRules();
+  const { requiredRule } = useValidationRules();
   const email = ref('');
-  const confirmEmail = ref('');
   const firstName = ref('');
   const lastName = ref('');
   const formIsValid = ref(false);
@@ -120,7 +106,6 @@
       loading.value = true;
       const payload = {
         displayName: `${firstName.value} ${lastName.value}`,
-        email: email.value
       } as UserType;
 
       await userStore.update(payload);
@@ -135,7 +120,7 @@
 
   const deleteAccount = async () => {
     try {
-      userStore.deleteAccount();
+      await userStore.deleteAccount();
       messagesStore.showMessage('Utente eliminato con successo', 'success');
       setTimeout(() => {
         // redirect to home page after successful registration
@@ -152,6 +137,5 @@
     firstName.value = nameParts[0] || '';
     lastName.value = nameParts.slice(1).join(' ') || '';
     email.value = getEmail.value ?? '';
-    confirmEmail.value = getEmail.value ?? '';
   });
 </script>

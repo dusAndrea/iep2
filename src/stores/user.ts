@@ -124,14 +124,13 @@ export const useUserStore = defineStore('user', {
 
         await updateProfile(currentUser, {
           displayName: userPayload.displayName,
-          email: userPayload.email,
         });
 
         const userDocRef = doc(db, 'users', currentUser.uid);
 
         await updateDoc(userDocRef, userPayload);
 
-        this.setUser({ uid: currentUser?.uid, displayName: userPayload.displayName, email: userPayload?.email });
+        this.setUser({ uid: currentUser?.uid, displayName: userPayload.displayName });
       } catch (error: any) {
         throw new Error('Errore durante l\'aggiornamento:');
       }
