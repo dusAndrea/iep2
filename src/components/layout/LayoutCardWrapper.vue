@@ -4,20 +4,16 @@
     :color="color"
     :flat="flat"
     class="fill-height">
-    <v-card-subtitle class="text-text">
-      {{ subtitle }}
-    </v-card-subtitle>
+    <v-card-subtitle class="text-text">{{ subtitle }}</v-card-subtitle>
 
     <template #prepend
       v-if="icon">
       <v-icon size="x-large"
-        color="success">
-        {{ icon }}
-      </v-icon>
+        color="success">{{ icon }}</v-icon>
     </template>
 
     <v-card-text>
-      <slot name="cardContent"></slot>]+
+      <slot name="cardContent"></slot>
     </v-card-text>
   </v-card>
 </template>
@@ -35,7 +31,7 @@
     }>(),
     {
       subtitle: "",
-      color: undefined, // opzionale: default cromatico coerente
+      color: undefined,
       icon: "",
       flat: false,
     });
