@@ -17,7 +17,7 @@
     </template>
 
     <v-card-text>
-      <slot name="cardContent"></slot>
+      <slot name="cardContent"></slot>]+
     </v-card-text>
   </v-card>
 </template>
@@ -28,7 +28,7 @@
   const props = withDefaults(
     defineProps<{
       title: string,
-      subtitle: string,
+      subtitle?: string,
       color?: ColorAvailable,
       icon?: string,
       flat?: boolean;
