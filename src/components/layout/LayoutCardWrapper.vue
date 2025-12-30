@@ -1,5 +1,5 @@
 <template>
-  <v-card outlined
+  <v-card variant="outlined"
     :title="title"
     :color="color"
     :flat="flat"

@@ -15,7 +15,7 @@
               @update:search="handleStartSearch"
               item-title="display_name"
               item-value="display_name"
-              outlined />
+              variant="outlined" />
           </v-col>
           <v-col cols="12"
             lg="6">
@@ -27,7 +27,7 @@
               @update:search="handleEndSearch"
               item-title="display_name"
               item-value="display_name"
-              outlined />
+              variant="outlined" />
           </v-col>
         </v-row>
         <v-row>
@@ -35,7 +35,7 @@
             <v-select v-model="travelChoice"
               :items="travelMode"
               label="Che mezzo usi?"
-              outlined />
+              variant="outlined" />
           </v-col>
         </v-row>
 
@@ -46,7 +46,7 @@
               v-model="carTypeChoice"
               :items="carType"
               label="Che tipo di auto hai??"
-              outlined />
+              variant="outlined" />
           </v-col>
           <v-col cols="12"
             lg="6">
@@ -54,7 +54,7 @@
               v-model="carSizeChoice"
               :items="carSize"
               label="Che dimensioni ha la tua auto?"
-              outlined />
+              variant="outlined" />
           </v-col>
         </v-row>
 

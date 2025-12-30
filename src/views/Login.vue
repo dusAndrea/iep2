@@ -33,7 +33,7 @@
               label="Email"
               type="email"
               required
-              outlined
+              variant="outlined"
               clearable
               :rules="[requiredRule, emailRule]" />
           </v-col>
@@ -46,7 +46,7 @@
               label="Password"
               :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
               @click:append-inner="showPassword = !showPassword"
-              outlined
+              variant="outlined"
               required
               clearable
               autocomplete
