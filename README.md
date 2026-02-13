@@ -1,11 +1,14 @@
 # PROGETTO: GAIA-DATA
 
-## Setup del Progetto
+## Requirements
 
-### Requisiti
+- Node.js >= 20
+- npm >= 9
 
-- Node version: 18.18.0
-- NPM version: 9.8.1
+If you use nvm:
+
+````bash
+nvm use
 
 ### Esecuzione
 
@@ -13,7 +16,7 @@ Da terminale spostarsi nella root della cartella di progetto ed eseguire:
 
 ```sh
 npm install
-```
+````
 
 Una volta terminata l'installazione delle dipendenze, sempre da terminale, eseguire
 

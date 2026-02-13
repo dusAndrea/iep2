@@ -36,6 +36,7 @@
   import { useQuestionsStore } from '@/stores';
 
   const showQuiz = ref(false);
+
   const questions = [
     {
       "answer": 0,

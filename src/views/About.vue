@@ -16,9 +16,11 @@
     </v-col>
     <v-col cols="12">
       <h4 class="text-primary">Parte tecnica</h4>
-      <p>Lo stack utilizzato per la parte tecnica: Vue3, Pinia, e Vuetify</p>
-      <p>API utilizzate: OpenStreetMap, Newsapi e OpenRouteService</p>
-      <p>Databese: Firebase</p>
+      <p>Frontend Framework: <strong>VueJS</strong></p>
+      <p>Store Library <strong>Pinia</strong></p>
+      <p>Vue Component Framework: <strong>Vuetify</strong></p>
+      <p>API: <strong>OpenStreetMap, Newsapi e OpenRouteService</strong></p>
+      <p>Database: <strong>Firebase</strong></p>
     </v-col>
   </v-row>
 </template>
