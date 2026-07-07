@@ -1,9 +1,11 @@
 <template>
   <v-card variant="outlined"
-    :title="title"
     :color="color"
     :flat="flat"
     class="fill-height">
+    <template #title>
+      <span class="card-title">{{ title }}</span>
+    </template>
     <v-card-subtitle class="text-text">{{ subtitle }}</v-card-subtitle>
 
     <template #prepend
@@ -36,3 +38,11 @@
       flat: false,
     });
 </script>
+
+<style scoped>
+.card-title {
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+}
+</style>

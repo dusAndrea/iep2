@@ -5,7 +5,7 @@
     v-bind="carouselConfig">
     <Slide v-for="(feed, index) in feeds"
       :key="index">
-      <GaiaFeedArticle :key="index"
+      <FeedArticles :key="index"
         :article="feed" />
     </Slide>
     <template #addons>
@@ -15,57 +15,19 @@
 
 </template>
 
-<script lang="ts">
-  import { defineComponent, onMounted, ref } from 'vue';
+<script setup lang="ts">
   import 'vue3-carousel/carousel.css';
   import { Carousel, Slide, Navigation } from 'vue3-carousel';
   import { FeedArticles } from '@/components';
-  import { useFeedsStore } from '@/stores';
-  import { storeToRefs } from 'pinia';
-  import type { FeedType } from '@/types';
-  import { useMessagesStore } from '@/stores';
+  import { useFeedLoader } from '@/composables/useFeedLoader';
 
-  export default defineComponent({
-    name: 'GreenFeed',
-    components: {
-      Carousel, Slide, Navigation,
-      FeedArticles,
+  const { feeds } = useFeedLoader();
 
-    },
-    setup() {
-      const feedStore = useFeedsStore();
-      const feeds = ref([] as FeedType[]);
-      const { getFeeds } = storeToRefs(feedStore);
-      const messagesStore = useMessagesStore();
-      const carouselConfig = {
-        itemsToShow: 4,
-        wrapAround: false,
-        snapAlign: 'start',
-        gap: 20,
-        height: 160
-      };
-
-      const fetchFeeds = async () => {
-        if (!getFeeds.value.length) {
-          try {
-            await feedStore.fetchFeeds();
-          } catch (error: any) {
-            messagesStore.showMessage(error.message, 'error');
-          }
-        }
-        feeds.value = getFeeds.value;
-      };
-
-      onMounted(() => {
-        fetchFeeds();
-      });
-
-      return {
-        fetchFeeds,
-        feeds,
-        carouselConfig
-      };
-    }
-
-  });
+  const carouselConfig = {
+    itemsToShow: 4,
+    wrapAround: false,
+    snapAlign: 'start' as const,
+    gap: 20,
+    height: 160
+  };
 </script>

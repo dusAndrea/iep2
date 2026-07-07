@@ -2,7 +2,7 @@
   <v-card v-if="article"
     class="d-flex"
     elevation="1"
-    rounderd="0">
+    rounded="0">
     <v-avatar rounded="0"
       size="160">
       <v-img :src="article.urlToImage || 'https://placehold.co/600x400?text=No+Image'"

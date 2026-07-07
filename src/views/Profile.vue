@@ -85,7 +85,7 @@
   import { useUserStore } from '@/stores/user';
   import { useMessagesStore } from '@/stores/messages';
   import { useValidationRules } from '@/composables';
-  import type { UserType } from '@/types';
+  import type { UserUpdatePayload } from '@/types';
   import { storeToRefs } from 'pinia';
   import router from '@/router';
 
@@ -104,15 +104,15 @@
   const handleUpdate = async () => {
     try {
       loading.value = true;
-      const payload = {
+      const payload: UserUpdatePayload = {
         displayName: `${firstName.value} ${lastName.value}`,
-      } as UserType;
+      };
 
       await userStore.update(payload);
       messagesStore.showMessage('Dati aggiornati con successo', 'success');
     }
-    catch (error: any) {
-      messagesStore.showMessage(error.message, 'error');
+    catch (error: unknown) {
+      messagesStore.showMessage(error instanceof Error ? error.message : 'Errore sconosciuto', 'error');
     } finally {
       loading.value = false;
     }
@@ -124,10 +124,10 @@
       messagesStore.showMessage('Utente eliminato con successo', 'success');
       setTimeout(() => {
         // redirect to home page after successful registration
-        router.push('/login');
+        router.push({ name: 'login' });
       }, getTimeout.value);
-    } catch (error: any) {
-      messagesStore.showMessage(error.message, 'error');
+    } catch (error: unknown) {
+      messagesStore.showMessage(error instanceof Error ? error.message : 'Errore sconosciuto', 'error');
     }
   };
 

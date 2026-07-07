@@ -5,7 +5,7 @@ export function useValidationRules() {
   };
 
   const requiredRule = (value: string): true | string => {
-    return !!value || 'Questo campo è obbligatorio';
+    return !!value?.trim() || 'Questo campo è obbligatorio';
   };
 
   const matchRule = (otherValue: string) => {

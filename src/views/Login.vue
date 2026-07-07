@@ -10,6 +10,7 @@
           <v-img aspect-ratio="16/9"
             cover
             :src="imgPath"
+            alt="Logo Gaia Data"
             class="mx-auto" />
         </v-col>
       </v-row>
@@ -22,7 +23,7 @@
 
     <v-spacer />
 
-    <v-card-subtitle>Non hai un account? <RouterLink to="register">Registrati</RouterLink></v-card-subtitle>
+    <v-card-subtitle>Non hai un account? <RouterLink :to="{ name: 'register' }">Registrati</RouterLink></v-card-subtitle>
 
     <v-card-text>
       <v-form @submit.prevent="handleLogin"
@@ -44,13 +45,20 @@
               v-model="password"
               :type="showPassword ? 'text' : 'password'"
               label="Password"
-              :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
-              @click:append-inner="showPassword = !showPassword"
               variant="outlined"
               required
               clearable
-              autocomplete
-              :rules="[requiredRule, minLength]" />
+              autocomplete="current-password"
+              :rules="[requiredRule, minLength]">
+              <template #append-inner>
+                <v-btn
+                  :icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                  :aria-label="showPassword ? 'Nascondi password' : 'Mostra password'"
+                  variant="text"
+                  density="compact"
+                  @click="showPassword = !showPassword" />
+              </template>
+            </v-text-field>
           </v-col>
         </v-row>
         <v-row justify="center"
@@ -77,9 +85,9 @@
   import darkLogo from '@/assets/logo_nobg_dark.png';
   import { useRouter } from 'vue-router';
   import { useUserStore, useMessagesStore } from '@/stores';
-  import { useValidationRules, useFirebaseAuthError } from '@/composables';
-  import type { UserType } from '@/types';
-  import { useIsDark } from '@/composables';
+  import { useValidationRules, useFirebaseAuthError, useIsDark } from '@/composables';
+  import { FirebaseError } from 'firebase/app';
+  import type { LoginPayload } from '@/types';
 
   // COMPOSABLE THEME
   const { isDark } = useIsDark();
@@ -93,22 +101,22 @@
   const userStore = useUserStore();
   const messagesStore = useMessagesStore();
   const loading = ref(false);
-  const imgPath = computed(() => isDark.value === 'dark' ? darkLogo : lightLogo);
+  const imgPath = computed(() => isDark.value ? darkLogo : lightLogo);
   const { getFirebaseAuthErrorMessage } = useFirebaseAuthError();
 
   const handleLogin = async () => {
     try {
       loading.value = true;
-      const payload = {
+      const payload: LoginPayload = {
         email: email.value,
-        password: password.value
-      } as UserType;
+        password: password.value,
+      };
 
       await userStore.login(payload);
       router.push('/dashboard');
     }
-    catch (error: any) {
-      const code = error.code || '';
+    catch (error: unknown) {
+      const code = error instanceof FirebaseError ? error.code : '';
       const message = getFirebaseAuthErrorMessage(code);
       messagesStore.showMessage(message, 'error');
     } finally {

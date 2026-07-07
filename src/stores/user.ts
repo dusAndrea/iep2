@@ -2,7 +2,8 @@ import { defineStore } from 'pinia';
 import { auth, db } from '@/services/firebaseServices';
 import { getDoc, deleteDoc, doc, setDoc, getDocs, where, orderBy, updateDoc, query, collection } from 'firebase/firestore';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, deleteUser } from 'firebase/auth';
-import type { UserType, QuizType } from '@/types';
+import { FirebaseError } from 'firebase/app';
+import type { LoginPayload, RegisterPayload, QuizType, UserUpdatePayload } from '@/types';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -38,11 +39,9 @@ export const useUserStore = defineStore('user', {
     async deleteAccount(): Promise<void> {
       try {
         const currentUser = auth.currentUser;
+        if (!currentUser) throw new Error('Utente non autenticato');
 
-        // Elimina dati Firestore
-        await deleteDoc(doc(db, 'users', currentUser?.uid));
-
-        // Elimina account Firebase
+        await deleteDoc(doc(db, 'users', currentUser.uid));
         await deleteUser(currentUser);
 
         this.resetUser();
@@ -58,7 +57,7 @@ export const useUserStore = defineStore('user', {
       this.quizHistory = [];
     },
 
-    async register(newUser: UserType): Promise<void> {
+    async register(newUser: RegisterPayload): Promise<void> {
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, newUser.email, newUser.password);
         const user = userCredential.user;
@@ -73,10 +72,10 @@ export const useUserStore = defineStore('user', {
         });
 
         this.setUser({ uid: user.uid, email: newUser.email, displayName });
-      } catch (error: any) {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        let customError;
+      } catch (error: unknown) {
+        const errorCode = error instanceof FirebaseError ? error.code : '';
+        const errorMessage = error instanceof Error ? error.message : '';
+        let customError: string;
 
         switch (errorCode) {
           case 'auth/email-already-in-use':
@@ -89,7 +88,7 @@ export const useUserStore = defineStore('user', {
             customError = 'Password troppo debole';
             break;
           default:
-            customError = `Errore generico ${errorMessage}`;
+            customError = `Errore generico: ${errorMessage}`;
         }
 
         throw new Error(customError);
@@ -100,39 +99,33 @@ export const useUserStore = defineStore('user', {
       this.resetUser();
     },
 
-    async login(userLogin: UserType): Promise<void> {
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, userLogin.email, userLogin.password);
-        const user = userCredential.user;
+    async login(userLogin: LoginPayload): Promise<void> {
+      const userCredential = await signInWithEmailAndPassword(auth, userLogin.email, userLogin.password);
+      const user = userCredential.user;
 
-        const docRef = doc(db, 'users', user.uid);
-        const docSnap = await getDoc(docRef);
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists()) {
-          this.setUser({ uid: user.uid, ...docSnap.data() });
-        } else {
-          throw new Error(message);
-        }
-      } catch (error: any) {
-        throw new Error(error);
+      if (docSnap.exists()) {
+        this.setUser({ uid: user.uid, ...docSnap.data() });
+      } else {
+        throw new Error('Utente non trovato');
       }
     },
 
-    async update(userPayload: any): Promise<void> {
+    async update(userPayload: UserUpdatePayload): Promise<void> {
       try {
         const currentUser = auth.currentUser;
+        if (!currentUser) throw new Error('Utente non autenticato');
 
-        await updateProfile(currentUser, {
-          displayName: userPayload.displayName,
-        });
+        await updateProfile(currentUser, { displayName: userPayload.displayName });
 
         const userDocRef = doc(db, 'users', currentUser.uid);
-
         await updateDoc(userDocRef, userPayload);
 
-        this.setUser({ uid: currentUser?.uid, displayName: userPayload.displayName });
-      } catch (error: any) {
-        throw new Error('Errore durante l\'aggiornamento:');
+        this.setUser({ uid: currentUser.uid, displayName: userPayload.displayName });
+      } catch {
+        throw new Error('Errore durante l\'aggiornamento');
       }
     },
 
@@ -148,8 +141,7 @@ export const useUserStore = defineStore('user', {
           id: doc.id,
           ...doc.data()
         })) as QuizType[];
-      } catch (error) {
-        console.error('Errore nel recupero quiz history:', error);
+      } catch {
         throw new Error('Errore nel recupero quiz history');
       }
     }

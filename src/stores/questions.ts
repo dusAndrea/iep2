@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { db } from '@/services/firebaseServices';
 import { collection, getDocs, addDoc } from 'firebase/firestore';
-import type { QuestionType, UserType } from '@/types';
+import type { QuestionType, QuizType } from '@/types';
 
 export const useQuestionsStore = defineStore('questions', {
   state: () => ({
@@ -9,13 +9,7 @@ export const useQuestionsStore = defineStore('questions', {
   }),
   persist: true,
   getters: {
-    getQuestions: (state) => {
-      if (!state.questions.length) {
-        this.fetchRandomQuestions();
-      }
-
-      return state.questions;
-    },
+    getQuestions: (state) => state.questions,
   },
   actions: {
     async fetchRandomQuestions(limit = 10) {
@@ -24,17 +18,23 @@ export const useQuestionsStore = defineStore('questions', {
       const allQuestions = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      }));
+      })) as unknown as QuestionType[];
 
-      // Shuffle + slice
-      const shuffled = allQuestions.sort(() => 0.5 - Math.random());
-      this.questions = shuffled.slice(0, limit);
+      // Fisher-Yates shuffle: garantisce distribuzione uniforme.
+      // sort(() => Math.random() - 0.5) è distorto perché l'algoritmo di sort
+      // assume un comparatore deterministico — con valori casuali alcune
+      // permutazioni vengono visitate più spesso di altre, rendendo il quiz
+      // prevedibile per chi lo ripete.
+      for (let i = allQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]];
+      }
+      this.questions = allQuestions.slice(0, limit);
     },
 
-    async submitAssesment(payload: any) {
+    async submitAssesment(payload: QuizType) {
       try {
         await addDoc(collection(db, 'quizResults'), payload);
-        console.log('Risultato salvato con successo!');
       } catch {
         throw new Error('Errore nel salvataggio');
       }

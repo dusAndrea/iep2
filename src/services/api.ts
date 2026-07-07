@@ -17,7 +17,7 @@ export async function fetchCarbonIntensity() {
     const data = await res.json();
     const values = data.data || [];
 
-    return values.map((entry) => ({
+    return values.map((entry: { from: string; intensity: { actual: number } }) => ({
       time: entry.from,
       value: entry.intensity.actual
     }));

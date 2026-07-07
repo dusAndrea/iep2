@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
@@ -30,6 +31,20 @@ export default defineConfig({
       },
     },
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/__tests__/setup.ts'],
+    css: false,
+    server: {
+      deps: {
+        inline: ['vuetify'],
+      },
+    },
+    coverage: {
+      provider: 'v8',
+      include: ['src/composables/**', 'src/stores/**'],
+      reporter: ['text', 'lcov'],
+    },
+  },
 })
-
-

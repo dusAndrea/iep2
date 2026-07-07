@@ -30,7 +30,7 @@ export const useFeedsStore = defineStore('feeds', {
 
         const data = await res.json();
         this.feeds = data.articles;
-      } catch (err: any) {
+      } catch {
         throw new Error('Errore nel caricamento degli articoli');
       }
     },

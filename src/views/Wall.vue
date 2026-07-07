@@ -52,30 +52,8 @@
 
 </template>
 <script setup lang="ts">
-  import { onMounted, ref } from 'vue';
-  import { useFeedsStore } from '@/stores';
-  import { storeToRefs } from 'pinia';
-  import type { FeedType } from '@/types';
-  import { useMessagesStore } from '@/stores';
   import { formatDate } from '@/composables';
+  import { useFeedLoader } from '@/composables/useFeedLoader';
 
-  const feedStore = useFeedsStore();
-  const feeds = ref([] as FeedType[]);
-  const { getFeeds } = storeToRefs(feedStore);
-  const messagesStore = useMessagesStore();
-
-  const fetchFeeds = async () => {
-    if (!getFeeds.value.length) {
-      try {
-        await feedStore.fetchFeeds();
-      } catch (error: any) {
-        messagesStore.showMessage(error.message, 'error');
-      }
-    }
-    feeds.value = getFeeds.value;
-  };
-
-  onMounted(() => {
-    fetchFeeds();
-  });
+  const { feeds } = useFeedLoader();
 </script>

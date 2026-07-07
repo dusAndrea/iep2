@@ -6,15 +6,20 @@
     flat
     class="px-4">
 
-    <v-app-bar-nav-icon @click="drawer = !drawer"
+    <v-app-bar-nav-icon
+      :aria-label="drawer ? 'Chiudi menu di navigazione' : 'Apri menu di navigazione'"
+      :aria-expanded="drawer"
+      aria-controls="nav-drawer"
+      @click="drawer = !drawer"
       class="d-md-none" />
 
     <v-spacer class="d-block d-lg-none" />
 
-    <RouterLink to="/">
+    <RouterLink to="/" aria-label="Vai alla homepage">
       <v-img :width="140"
         aspect-ratio="16/9"
         cover
+        alt=""
         :src="imgPath" />
     </RouterLink>
 
@@ -50,14 +55,17 @@
       icon="mdi-logout"
       size="large"
       variant="text"
+      aria-label="Esci dall'account"
       @click="logout" />
 
     <v-menu min-width="200px">
       <template v-slot:activator="{ props }">
         <v-btn icon
+          :aria-label="`Apri menu utente di ${getDisplayName}`"
           v-bind="props">
           <v-avatar color="text"
-            size="large">
+            size="large"
+            aria-hidden="true">
             <span class="text-h6">{{ getShortDisplayName }}</span>
           </v-avatar>
         </v-btn>
@@ -74,14 +82,15 @@
             </p>
             <v-divider class="my-3"></v-divider>
             <v-btn variant="text"
-              rounded>
-              <RouterLink to="/profile">Edit Account</RouterLink>
+              rounded
+              :to="{ name: 'Profile' }">
+              Modifica Profilo
             </v-btn>
             <v-divider class="my-3"></v-divider>
             <v-btn variant="text"
-              rounded>
-              <RouterLink to="/#"
-                @click="logout">Logout</RouterLink>
+              rounded
+              @click="logout">
+              Logout
             </v-btn>
           </div>
         </v-card-text>
@@ -91,8 +100,10 @@
 
   <!-- Drawer for mobile -->
   <v-navigation-drawer v-model="drawer"
+    id="nav-drawer"
     app
-    temporary>
+    temporary
+    aria-label="Menu di navigazione principale">
     <v-list>
       <v-list-item v-for="link in links"
         :key="link.to"
@@ -127,8 +138,7 @@
   import darkLogo from '@/assets/logo_nobg_dark.png';
   import { useUserStore, useFeedsStore } from '@/stores';
   import { storeToRefs } from 'pinia';
-  import { useRouter } from 'vue-router';
-  import { useRoute } from 'vue-router';
+  import { useRouter, useRoute } from 'vue-router';
   import DesktopToggle from '@/components/responsive/ResponsiveDesktop.vue';
   import MobileToggle from '@/components/responsive/ResponsiveMobile.vue';
   import { useIsDark } from '@/composables/useIsDark';

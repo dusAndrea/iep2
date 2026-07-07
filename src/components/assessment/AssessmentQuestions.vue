@@ -134,8 +134,7 @@
     try {
       questions.value = getQuestions.value;
     } catch {
-      const message = error instanceof Error ? error.message : 'Errore durante il caricamento';
-      messagesStore.showMessage(message, 'error');
+      messagesStore.showMessage('Errore durante il caricamento', 'error');
     } finally {
       loading.value = false;
     }

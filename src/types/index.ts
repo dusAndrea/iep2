@@ -1,10 +1,19 @@
-export interface UserType {
-  id: string,
+export type LoginPayload = {
+  email: string;
+  password: string;
+};
+
+export type RegisterPayload = {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
+};
+
+export interface UserType {
+  uid: string;
   displayName: string;
+  email: string;
 }
 
 export interface FeedType {
@@ -30,21 +39,21 @@ export interface QuestionType {
 
 export type ColorAvailable = 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info' | 'background' | undefined;
 
-export type QuizAnswerType = {
-  question: string;
-  selected: string | number;
-  correct: string | number;
-  isCorrect: boolean;
-};
 
 export type QuizType = {
   id?: string;
   userId: string;
   score: number;
+  total: number;
   date: string;
-  questions: {
+  answers: {
     question: string;
-    userAnswer: string;
-    correctAnswer: string;
+    selected: string | number;
+    correct: number;
+    isCorrect: boolean;
   }[];
+};
+
+export type UserUpdatePayload = {
+  displayName: string;
 };

@@ -11,6 +11,7 @@
             aspect-ratio="16/9"
             cover
             :src="imgPath"
+            alt="Logo Gaia Data"
             class="mx-auto" />
         </v-col>
       </v-row>
@@ -24,7 +25,7 @@
     <v-spacer />
 
     <v-card-subtitle>Ha già un account?
-      <RouterLink to="login">Accedi</RouterLink>
+      <RouterLink :to="{ name: 'login' }">Accedi</RouterLink>
     </v-card-subtitle>
 
     <v-card-text>
@@ -80,13 +81,20 @@
               v-model="password"
               :type="showPassword ? 'text' : 'password'"
               label="Password"
-              :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
-              @click:append-inner="showPassword = !showPassword"
               required
               variant="outlined"
               clearable
-              autocomplete
-              :rules="[requiredRule, minLength]" />
+              autocomplete="new-password"
+              :rules="[requiredRule, minLength]">
+              <template #append-inner>
+                <v-btn
+                  :icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                  :aria-label="showPassword ? 'Nascondi password' : 'Mostra password'"
+                  variant="text"
+                  density="compact"
+                  @click="showPassword = !showPassword" />
+              </template>
+            </v-text-field>
           </v-col>
           <v-col cols="12"
             md="6">
@@ -95,13 +103,20 @@
               v-model="confirmPassword"
               label="Conferma Password"
               :type="showConfirmPassword ? 'text' : 'password'"
-              :append-inner-icon="showConfirmPassword ? 'mdi-eye-off' : 'mdi-eye'"
-              @click:append-inner="showConfirmPassword = !showConfirmPassword"
               required
               variant="outlined"
               clearable
-              autocomplete
-              :rules="[requiredRule, minLength, matchRule(password)]" />
+              autocomplete="new-password"
+              :rules="[requiredRule, minLength, matchRule(password)]">
+              <template #append-inner>
+                <v-btn
+                  :icon="showConfirmPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                  :aria-label="showConfirmPassword ? 'Nascondi conferma password' : 'Mostra conferma password'"
+                  variant="text"
+                  density="compact"
+                  @click="showConfirmPassword = !showConfirmPassword" />
+              </template>
+            </v-text-field>
           </v-col>
         </v-row>
         <v-row justify="center"
@@ -128,9 +143,8 @@
   import darkLogo from '@/assets/logo_nobg_dark.png';
   import { useUserStore, useMessagesStore } from '@/stores';
   import { useRouter } from 'vue-router';
-  import { useValidationRules } from '@/composables';
-  import type { UserType } from '@/types';
-  import { useIsDark } from '@/composables/useIsDark';
+  import { useValidationRules, useIsDark } from '@/composables';
+  import type { RegisterPayload } from '@/types';
 
   // COMPOSABLE THEME
   const { isDark } = useIsDark();
@@ -155,26 +169,26 @@
   const loading = ref(false);
 
   // COMPUTED
-  const imgPath = computed(() => isDark.value === 'dark' ? darkLogo : lightLogo);
+  const imgPath = computed(() => isDark.value ? darkLogo : lightLogo);
 
   // METHOD
   const handleRegister = async () => {
     try {
       loading.value = true;
-      const payload = {
+      const payload: RegisterPayload = {
         firstName: firstName.value,
         lastName: lastName.value,
         email: email.value,
-        password: password.value
-      } as UserType;
+        password: password.value,
+      };
 
       await userStore.register(payload);
 
       messagesStore.showMessage('Utente creato con successo', 'success');
 
       router.push({ name: 'login' });
-    } catch (e: any) {
-      messagesStore.showMessage(e.message, 'error');
+    } catch (e: unknown) {
+      messagesStore.showMessage(e instanceof Error ? e.message : 'Errore sconosciuto', 'error');
     } finally {
       loading.value = false;
     }
