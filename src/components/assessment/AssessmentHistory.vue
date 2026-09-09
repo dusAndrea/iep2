@@ -1,5 +1,6 @@
 <template>
-  <LayoutCardWrapper :title="'Quanto informato sei in fatto di sostenibilità ambientale?'">
+  <LayoutCardWrapper :title="title"
+    :icon="icon">
     <template #cardContent>
       <div v-if="getQuizHistory.length">
         <v-expansion-panels multiple>
@@ -45,6 +46,16 @@
   import { useUserStore, useMessagesStore } from '@/stores';
   import { storeToRefs } from 'pinia';
   import { formatDate } from '@/composables';
+
+  withDefaults(
+    defineProps<{
+      title?: string;
+      icon?: string;
+    }>(),
+    {
+      title: 'Quanto informato sei in fatto di sostenibilità ambientale?',
+      icon: '',
+    });
 
   // STORE SETUP
   const userStore = useUserStore();
