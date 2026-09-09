@@ -13,7 +13,7 @@
         <v-icon class="mx-2">mdi-white-balance-sunny</v-icon>
       </div>
 
-      <Switch class="mx-3" />
+      <ThemeSwitch class="mx-3" />
 
       <div>
         <v-icon class="mx-2">mdi-weather-night</v-icon>
@@ -24,7 +24,7 @@
 </template>
 <script setup lang="ts">
   import { ref } from 'vue';
-  import Switch from './Switch.vue';
+  import ThemeSwitch from './ThemeSwitch.vue';
 
   const snackBarModel = ref(true);
 </script>

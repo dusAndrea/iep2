@@ -17,4 +17,15 @@ export default defineConfigWithVueTs(
 
   pluginVue.configs['flat/essential'],
   vueTsConfigs.recommended,
+
+  {
+    // Le view sono montate dal router, mai usate come tag in un template:
+    // il rischio di collisione con un elemento HTML nativo — la ragione della
+    // regola — non si applica. Convenzione raccomandata da eslint-plugin-vue.
+    name: 'app/views-single-word-allowed',
+    files: ['src/views/**/*.vue'],
+    rules: {
+      'vue/multi-word-component-names': 'off',
+    },
+  },
 )

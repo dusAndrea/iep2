@@ -129,9 +129,13 @@
   };
 
   // LIFECYCLE
+  // Il fetch vive qui e non nel parent: lo store è persistito, quindi montare
+  // il quiz prima che la fetch del parent risolva mostrerebbe le domande della
+  // sessione precedente.
   onMounted(async () => {
-    loading.value = false;
+    loading.value = true;
     try {
+      await questionsStore.fetchRandomQuestions();
       questions.value = getQuestions.value;
     } catch {
       messagesStore.showMessage('Errore durante il caricamento', 'error');

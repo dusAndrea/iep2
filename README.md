@@ -6,8 +6,8 @@ Applicazione web per la sensibilizzazione sull'impatto ambientale degli spostame
 
 ## Requisiti
 
-- Node.js >= 20
-- npm >= 9
+- Node.js >= 24 (versione di riferimento: 24.3.0, vedi `.nvmrc`)
+- npm >= 11
 
 Con nvm:
 
@@ -95,7 +95,10 @@ Crea un file `.env` a partire da `.env.sample` e compila le chiavi:
 npm test               # esecuzione singola
 npm run test:watch     # watch mode
 npm run test:coverage  # report di copertura
+npm run test:e2e       # end-to-end con Playwright
 ```
+
+Gli spec end-to-end vivono in `src/__e2e__/` ed sono esclusi da Vitest: girano solo con `npm run test:e2e`, che avvia da sé il dev server sulla porta 3000.
 
 > Richiede Node >= 20. Con nvm: `nvm use 20 && npm test`
 
@@ -122,5 +125,6 @@ npm run test:coverage  # report di copertura
 | `npm run preview` | Preview della build |
 | `npm run lint` | Lint e auto-fix con ESLint |
 | `npm test` | Esegue i test unitari |
+| `npm run test:e2e` | Esegue i test end-to-end (Playwright) |
 | `npm run test:coverage` | Test con report di copertura |
 | `npm run type-check` | Verifica TypeScript senza emettere file |

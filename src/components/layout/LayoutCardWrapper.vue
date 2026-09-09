@@ -23,7 +23,7 @@
 <script setup lang="ts">
   import type { ColorAvailable } from '@/types';
 
-  const props = withDefaults(
+  withDefaults(
     defineProps<{
       title: string,
       subtitle?: string,
