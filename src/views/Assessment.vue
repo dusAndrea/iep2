@@ -29,14 +29,8 @@
   </v-row>
 </template>
 <script setup lang="ts">
-  import { ref, onMounted } from 'vue';
+  import { ref } from 'vue';
   import { AssessmentQuestions as Questions, AssessmentHistory as History, LayoutCardWrapper } from '@/components';
-  import { useQuestionsStore } from '@/stores';
 
   const showQuiz = ref(false);
-  const questionsStore = useQuestionsStore();
-
-  onMounted(async () => {
-    await questionsStore.fetchRandomQuestions();
-  });
 </script>
