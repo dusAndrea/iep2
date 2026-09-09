@@ -35,6 +35,10 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/__tests__/setup.ts'],
+    // Gli spec in __e2e__ girano su Playwright (npm run test:e2e): senza questo
+    // exclude vitest li raccoglie e fallisce con "Playwright Test did not
+    // expect test.describe() to be called here".
+    exclude: ['**/node_modules/**', '**/dist/**', 'src/__e2e__/**'],
     css: false,
     server: {
       deps: {
