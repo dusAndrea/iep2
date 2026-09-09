@@ -6,8 +6,8 @@ Applicazione web per la sensibilizzazione sull'impatto ambientale degli spostame
 
 ## Requisiti
 
-- Node.js >= 20
-- npm >= 9
+- Node.js >= 24 (versione di riferimento: 24.3.0, vedi `.nvmrc`)
+- npm >= 11
 
 Con nvm:
 
