@@ -181,7 +181,7 @@ describe('useUserStore', () => {
     })
 
     it('elimina i dati e resetta lo store se currentUser è presente', async () => {
-      vi.mocked(firebaseServices).auth.currentUser = { uid: 'uid-1' } as any
+      vi.mocked(firebaseServices).auth.currentUser = { uid: 'uid-1' } as typeof firebaseServices.auth.currentUser
       mockDeleteDoc.mockResolvedValue(undefined)
       mockDeleteUser.mockResolvedValue(undefined)
 
@@ -202,7 +202,7 @@ describe('useUserStore', () => {
     })
 
     it('aggiorna displayName se currentUser è presente', async () => {
-      vi.mocked(firebaseServices).auth.currentUser = { uid: 'uid-1' } as any
+      vi.mocked(firebaseServices).auth.currentUser = { uid: 'uid-1' } as typeof firebaseServices.auth.currentUser
       mockUpdateProfile.mockResolvedValue(undefined)
       mockUpdateDoc.mockResolvedValue(undefined)
 
@@ -246,7 +246,7 @@ describe('useUserStore', () => {
       const quizArray = [
         { userId: 'uid-1', score: 8, total: 10, date: '2024-01-01', answers: [] },
       ]
-      store.setQuiz(quizArray as any)
+      store.setQuiz(quizArray)
       expect(store.quizHistory).toEqual(quizArray)
     })
   })
