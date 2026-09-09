@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { auth, db } from '@/services/firebaseServices';
 import { getDoc, deleteDoc, doc, setDoc, getDocs, where, orderBy, updateDoc, query, collection } from 'firebase/firestore';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, deleteUser } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, deleteUser, signOut } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 import type { LoginPayload, RegisterPayload, QuizType, UserUpdatePayload } from '@/types';
 
@@ -37,15 +37,22 @@ export const useUserStore = defineStore('user', {
     },
 
     async deleteAccount(): Promise<void> {
-      try {
-        const currentUser = auth.currentUser;
-        if (!currentUser) throw new Error('Utente non autenticato');
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error('Sessione scaduta: effettua di nuovo il login per eliminare l\'account');
+      }
 
+      try {
         await deleteDoc(doc(db, 'users', currentUser.uid));
         await deleteUser(currentUser);
 
         this.resetUser();
-      } catch {
+      } catch (error: unknown) {
+        // deleteUser richiede un login recente: senza questo caso l'utente
+        // riceverebbe un messaggio generico proprio nello scenario più comune.
+        if (error instanceof FirebaseError && error.code === 'auth/requires-recent-login') {
+          throw new Error('Per sicurezza devi effettuare di nuovo il login prima di eliminare l\'account');
+        }
         throw new Error('Operazione fallita');
       }
     },
@@ -95,8 +102,14 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    logout(): void {
-      this.resetUser();
+    // Chiude anche la sessione Firebase: resettare il solo store lascerebbe
+    // l'utente autenticato lato Firebase dopo il "logout".
+    async logout(): Promise<void> {
+      try {
+        await signOut(auth);
+      } finally {
+        this.resetUser();
+      }
     },
 
     async login(userLogin: LoginPayload): Promise<void> {
@@ -114,10 +127,12 @@ export const useUserStore = defineStore('user', {
     },
 
     async update(userPayload: UserUpdatePayload): Promise<void> {
-      try {
-        const currentUser = auth.currentUser;
-        if (!currentUser) throw new Error('Utente non autenticato');
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error('Sessione scaduta: effettua di nuovo il login');
+      }
 
+      try {
         await updateProfile(currentUser, { displayName: userPayload.displayName });
 
         const userDocRef = doc(db, 'users', currentUser.uid);

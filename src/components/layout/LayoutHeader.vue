@@ -195,11 +195,16 @@
 
   const imgPath = computed(() => isDark.value ? darkLogo : lightLogo);
 
-  const logout = (() => {
-    userStore.logout();
+  const logout = async () => {
+    try {
+      await userStore.logout();
+    } catch {
+      // signOut fallito (es. rete): lo store è già stato resettato,
+      // la sessione locale è chiusa comunque.
+    }
     feedsStore.clearFeeds();
     router.push({ name: 'login' });
-  });
+  };
 </script>
 <style lang="scss" scoped>
   .v-app-bar {

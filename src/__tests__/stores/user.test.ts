@@ -10,6 +10,7 @@ const mockGetDocs = vi.fn()
 const mockSetDoc = vi.fn()
 const mockDeleteDoc = vi.fn()
 const mockUpdateDoc = vi.fn()
+const mockSignOut = vi.fn()
 
 vi.mock('@/services/firebaseServices', () => ({
   auth: { currentUser: null },
@@ -21,6 +22,7 @@ vi.mock('firebase/auth', () => ({
   createUserWithEmailAndPassword: (...args: unknown[]) => mockCreateUser(...args),
   updateProfile: (...args: unknown[]) => mockUpdateProfile(...args),
   deleteUser: (...args: unknown[]) => mockDeleteUser(...args),
+  signOut: (...args: unknown[]) => mockSignOut(...args),
 }))
 
 vi.mock('firebase/firestore', () => ({
@@ -213,15 +215,28 @@ describe('useUserStore', () => {
   })
 
   describe('logout', () => {
-    it('resetta lo stato dello store', () => {
+    it('resetta lo stato dello store e chiude la sessione Firebase', async () => {
+      mockSignOut.mockResolvedValue(undefined)
+
       const store = useUserStore()
       store.setUser({ uid: 'uid-1', displayName: 'Mario', email: 'mario@test.it' })
-      store.logout()
+      await store.logout()
 
+      expect(mockSignOut).toHaveBeenCalled()
       expect(store.uid).toBeNull()
       expect(store.displayName).toBeNull()
       expect(store.email).toBeNull()
       expect(store.quizHistory).toEqual([])
+    })
+
+    it('resetta comunque lo store se signOut fallisce', async () => {
+      mockSignOut.mockRejectedValue(new Error('network'))
+
+      const store = useUserStore()
+      store.setUser({ uid: 'uid-1', displayName: 'Mario', email: 'mario@test.it' })
+      await expect(store.logout()).rejects.toThrow()
+
+      expect(store.uid).toBeNull()
     })
   })
 
